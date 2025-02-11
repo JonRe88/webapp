@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: project4
+metadata:
+    template: azd-init@1.12.0
+services:
+    project4:
+        project: .
+        host: containerapp
+        language: js
+        dist: dist
