@@ -1,37 +1,39 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { LogIn, UserPlus } from 'lucide-react';
 
-interface AuthFormsProps {
-  onLogin: (email: string, password: string) => void;
-  onRegister: (email: string, password: string, firstName: string, lastName: string) => void;
-}
-
-export function AuthForms({ onLogin, onRegister }: AuthFormsProps) {
+export function Login() {
+  const navigate = useNavigate();
+  const { signIn, signUp } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
       if (isSignUp) {
-        await onRegister(email, password, firstName, lastName);
+        await signUp(email, password);
+        // Show success message for sign up
+        alert('Account created successfully! Please sign in.');
+        setIsSignUp(false);
       } else {
-        await onLogin(email, password);
+        await signIn(email, password);
+        navigate('/');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Authentication failed');
+      const message = err instanceof Error ? err.message : 'Authentication failed. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <div className="max-w-md mx-auto">
@@ -47,34 +49,6 @@ export function AuthForms({ onLogin, onRegister }: AuthFormsProps) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {isSignUp && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </>
-          )}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Email
@@ -124,10 +98,6 @@ export function AuthForms({ onLogin, onRegister }: AuthFormsProps) {
             onClick={() => {
               setIsSignUp(!isSignUp);
               setError('');
-              setEmail('');
-              setPassword('');
-              setFirstName('');
-              setLastName('');
             }}
             className="text-blue-600 hover:text-blue-800"
           >
